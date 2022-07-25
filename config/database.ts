@@ -109,6 +109,9 @@ const databaseConfig: DatabaseConfig = {
         user: isHeroku ? m[2] : Env.get('PG_USER'),
         password: isHeroku ? m[3] : Env.get('PG_PASSWORD', ''),
         database: isHeroku ? m[6] : Env.get('PG_DB_NAME'),
+        ssl: {
+          rejectUnauthorized: false,
+        },
       },
       migrations: {
         naturalSort: true,
