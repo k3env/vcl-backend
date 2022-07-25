@@ -22,8 +22,7 @@
     "./providers/AppProvider",
     "@adonisjs/core",
     "@adonisjs/lucid",
-    "@adonisjs/auth",
-    "adonis5-swagger"
+    "@adonisjs/auth"
   ],
   "aceProviders": [
     "@adonisjs/repl"

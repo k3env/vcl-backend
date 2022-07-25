@@ -26,3 +26,5 @@ Route.get('/', async () => {
 
 Route.post('/api/user', 'AuthenticationController.create')
 Route.get('/api/user', 'AuthenticationController.list')
+Route.post('/api/signin', 'AuthenticationController.login')
+Route.post('/api/signup', 'AuthenticationController.create')
