@@ -7,8 +7,8 @@ export default class AuthenticationController {
     if (u === null) {
       try {
         u = new User()
-        u.email = request.body()['email']
-        u.password = request.body()['password']
+        u.email = request.input('email')
+        u.password = request.input('password')
         await u.save()
 
         response.send({ status: 200, user: u, rawBody: request.body })
@@ -20,22 +20,17 @@ export default class AuthenticationController {
     }
   }
 
-  public async list({ auth, response }: HttpContextContract) {
-    await auth.authenticate()
-    if (auth.isAuthenticated) {
-      response.send({ status: 200, users: await User.all() })
-    } else {
-      response.unauthorized()
-    }
-  }
-
   public async login({ auth, request, response }: HttpContextContract) {
-    const u = await User.findBy('email', request.input('email'))
+    const u = await auth.verifyCredentials(request.input('email'), request.input('password'))
     if (u === null) {
       response.notFound({ message: 'User with provided credentials not found' })
     } else {
       let token = await auth.login(u)
-      response.send({ message: 'Authorized', data: token })
+      response.send({ message: 'Authorized', data: token, user: u })
     }
+  }
+
+  public async profile({ auth, response }: HttpContextContract) {
+    response.send({ status: 200, user: auth.user })
   }
 }
