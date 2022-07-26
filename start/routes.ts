@@ -24,7 +24,15 @@ Route.get('/', async () => {
   return { hello: 'world' }
 })
 
-Route.post('/api/user', 'AuthenticationController.create')
-Route.get('/api/user', 'AuthenticationController.list')
-Route.post('/api/signin', 'AuthenticationController.login')
-Route.post('/api/signup', 'AuthenticationController.create')
+Route.group(() => {
+  Route.post('/signin', 'AuthenticationController.login')
+  Route.post('/signup', 'AuthenticationController.create')
+  Route.get('/profile', 'AuthenticationController.profile').middleware('auth')
+
+  Route.resource('employee', 'EmployeesController')
+  Route.resource('employee.vacation', 'VacationsController')
+
+  Route.group(() => {
+    Route.resource('user', 'AdminController').middleware({ '*': 'auth' })
+  }).prefix('admin')
+}).prefix('/api')
