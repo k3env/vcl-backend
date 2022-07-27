@@ -17,7 +17,7 @@ export default class VacationsController {
         model.length = request.input('length')
         model.related('employee').associate(employee)
 
-        model.save()
+        await model.save()
 
         response.send({ status: 200, vacation: model })
       } else {
