@@ -5,6 +5,9 @@ import { DateTime } from 'luxon'
 import { Exception } from '@adonisjs/core/build/standalone'
 
 export default class VacationsController {
+  public async all({ response }: HttpContextContract) {
+    response.send(Vacation.all())
+  }
   public async index({ request, response }: HttpContextContract) {
     response.send(await Vacation.query().where('employee_id', request.param('employee_id')))
   }
