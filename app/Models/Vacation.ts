@@ -12,8 +12,11 @@ export default class Vacation extends BaseModel {
   @column()
   public length: number
 
-  @belongsTo(() => Employee)
+  @belongsTo(() => Employee, { localKey: 'id', foreignKey: 'employee_id' })
   public employee: BelongsTo<typeof Employee>
+
+  @column()
+  public employee_id: number
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime

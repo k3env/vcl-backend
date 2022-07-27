@@ -14,12 +14,7 @@ export default class extends BaseSchema {
       //
       table.timestamp('start', { useTz: true })
       table.integer('length')
-      table
-        .integer('employee_id')
-        .unsigned()
-        .references('id')
-        .inTable('employees')
-        .onDelete('CASCADE')
+      table.integer('employee_id').unsigned().references('employees.id').onDelete('CASCADE')
 
       table.timestamp('created_at', { useTz: true })
       table.timestamp('updated_at', { useTz: true })
