@@ -1,3 +1,4 @@
+import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 /*
 |--------------------------------------------------------------------------
 | Routes
@@ -25,6 +26,9 @@ Route.get('/', async () => {
 })
 
 Route.group(() => {
+  Route.route('/*', ['OPTIONS', 'HEAD'], async ({ params, response }: HttpContextContract) => {
+    response.header('X-API-Path', JSON.stringify(params['*']))
+  })
   Route.post('/signin', 'AuthenticationController.login')
   Route.post('/signup', 'AuthenticationController.create')
   Route.get('/profile', 'AuthenticationController.profile').middleware('auth')
