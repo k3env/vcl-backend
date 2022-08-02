@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import { BaseModel, BelongsTo, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
+import { afterFind, BaseModel, BelongsTo, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
 import Employee from './Employee'
 
 export default class Vacation extends BaseModel {
@@ -12,7 +12,10 @@ export default class Vacation extends BaseModel {
   @column()
   public length: number
 
-  @belongsTo(() => Employee, { localKey: 'id', foreignKey: 'employee_id' })
+  @belongsTo(() => Employee, {
+    foreignKey: 'employee_id',
+    serializeAs: 'employee',
+  })
   public employee: BelongsTo<typeof Employee>
 
   @column()
@@ -23,4 +26,9 @@ export default class Vacation extends BaseModel {
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   public updatedAt: DateTime
+
+  @afterFind()
+  public static async afterFindHook(vacation: Vacation) {
+    await vacation.load('employee')
+  }
 }

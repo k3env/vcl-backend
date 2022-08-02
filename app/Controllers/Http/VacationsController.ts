@@ -6,20 +6,23 @@ import { Exception } from '@adonisjs/core/build/standalone'
 
 export default class VacationsController {
   public async all({ response }: HttpContextContract) {
-    response.send(Vacation.all())
+    response.send({ vacations: await Vacation.all() })
   }
   public async index({ request, response }: HttpContextContract) {
-    response.send(await Vacation.query().where('employee_id', request.param('employee_id')))
+    const em = await Employee.find(request.param('employee_id'))
+    // await em?.load('vacations')
+    response.send({ vacations: em?.vacations })
   }
   public async store({ request, response }: HttpContextContract) {
     try {
       let employee = await Employee.find(request.param('employee_id'))
       if (employee !== null) {
-        let model = new Vacation()
-        model.start = request.input('start')
-        model.length = request.input('length')
+        const model = await Vacation.create({
+          start: request.input('start'),
+          length: request.input('length'),
+        })
+        employee.$pushRelated('vacations', [model])
         model.related('employee').associate(employee)
-
         await model.save()
 
         response.send({ status: 200, vacation: model })
@@ -27,7 +30,7 @@ export default class VacationsController {
         response.notFound({ message: 'Employee not found' })
       }
     } catch (e) {
-      response.gone({ error: (e as Exception).message })
+      response.gone({ error: e as Exception })
     }
   }
   public async show({ request, response }: HttpContextContract) {

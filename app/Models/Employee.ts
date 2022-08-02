@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column, HasMany, hasMany } from '@ioc:Adonis/Lucid/Orm'
+import { afterFind, BaseModel, column, HasMany, hasMany } from '@ioc:Adonis/Lucid/Orm'
 import Vacation from './Vacation'
 
 export default class Employee extends BaseModel {
@@ -12,7 +12,15 @@ export default class Employee extends BaseModel {
   @column()
   public color: string
 
-  @hasMany(() => Vacation)
+  @hasMany(() => Vacation, {
+    foreignKey: 'employee_id',
+    serializeAs: 'vacations',
+    onQuery(query) {
+      if (!query.isRelatedSubQuery) {
+        query.preload('employee')
+      }
+    },
+  })
   public vacations: HasMany<typeof Vacation>
 
   @column.dateTime({ autoCreate: true })
@@ -20,4 +28,9 @@ export default class Employee extends BaseModel {
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   public updatedAt: DateTime
+
+  @afterFind()
+  public static async afterFindHook(employee: Employee) {
+    await employee.load('vacations')
+  }
 }
