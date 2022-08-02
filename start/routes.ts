@@ -33,9 +33,10 @@ Route.group(() => {
   Route.post('/signup', 'AuthenticationController.create')
   Route.get('/profile', 'AuthenticationController.profile').middleware('auth')
 
-  Route.get('/vacation', 'VacationsController.all')
+  // Route.get('/vacation', 'VacationsController.all')
   Route.resource('employee', 'EmployeesController')
-  Route.resource('employee.vacation', 'VacationsController')
+  Route.resource('vacation', 'VacationsController')
+  Route.resource('employee.vacation', 'EmployeeVacationsController')
 
   Route.group(() => {
     Route.resource('user', 'AdminController').middleware({ '*': 'auth' })

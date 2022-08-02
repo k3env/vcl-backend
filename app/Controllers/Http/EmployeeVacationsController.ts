@@ -1,16 +1,17 @@
-import Employee from 'App/Models/Employee'
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import { Exception } from '@adonisjs/core/build/standalone'
+import Employee from 'App/Models/Employee'
 import Vacation from 'App/Models/Vacation'
 import { DateTime } from 'luxon'
-import { Exception } from '@adonisjs/core/build/standalone'
 
-export default class VacationsController {
-  public async index({ response }: HttpContextContract) {
-    response.send({ vacations: await Vacation.all() })
+export default class EmployeeVacationsController {
+  public async index({ request, response }: HttpContextContract) {
+    const em = await Employee.find(request.param('employee_id'))
+    response.send({ vacations: em?.vacations })
   }
   public async store({ request, response }: HttpContextContract) {
     try {
-      let employee = await Employee.find(request.input('employee_id'))
+      let employee = await Employee.find(request.param('employee_id'))
       if (employee !== null) {
         const model = await Vacation.create({
           start: request.input('start'),
