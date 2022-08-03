@@ -38,14 +38,25 @@ export default class VacationsController {
   }
   public async update({ request, response }: HttpContextContract) {
     let model = await Vacation.find(request.param('id'))
-    model
-      ?.merge({
-        start: request.input('start'),
-        length: request.input('length'),
-        updatedAt: DateTime.now(),
-      })
-      .save()
-    response.send({ vacation: model })
+    const e = await Employee.find(request.input('employee_id'))
+    if (model !== null && e !== null) {
+      model.load('employee')
+      e.load('vacations')
+      model
+        ?.merge({
+          start: request.input('start'),
+          length: request.input('length'),
+          updatedAt: DateTime.now(),
+          employee_id: request.input('employee_id'),
+        })
+        .related('employee')
+        .associate(e)
+      e.$pushRelated('vacations', [model])
+      model.save()
+      response.send({ vacation: model })
+    } else {
+      response.notFound({ message: 'Vacation or Employee not found' })
+    }
   }
   public async destroy({ request, response }: HttpContextContract) {
     let model = await Vacation.find(request.param('id'))
