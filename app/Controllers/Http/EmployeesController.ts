@@ -39,7 +39,11 @@ export default class EmployeesController {
   }
   public async destroy({ request, response }: HttpContextContract) {
     let model = await Employee.find(request.param('id'))
-    await model?.delete()
-    response.send({ status: 'ok', id: request.param('id') })
+    if (model) {
+      await model?.delete()
+      response.send({ status: 'ok', id: request.param('id') })
+    } else {
+      response.notFound({ status: 'Not found', id: request.param('id') })
+    }
   }
 }
