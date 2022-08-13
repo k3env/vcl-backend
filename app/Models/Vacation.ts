@@ -1,5 +1,12 @@
 import { DateTime } from 'luxon'
-import { afterFind, BaseModel, BelongsTo, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
+import {
+  afterFetch,
+  afterFind,
+  BaseModel,
+  BelongsTo,
+  belongsTo,
+  column,
+} from '@ioc:Adonis/Lucid/Orm'
 import Employee from './Employee'
 
 export default class Vacation extends BaseModel {
@@ -30,5 +37,10 @@ export default class Vacation extends BaseModel {
   @afterFind()
   public static async afterFindHook(vacation: Vacation) {
     await vacation.load('employee')
+  }
+
+  @afterFetch()
+  public static async afterFetchHook(vacations: Vacation[]) {
+    await Promise.all(vacations.map(this.afterFindHook))
   }
 }
