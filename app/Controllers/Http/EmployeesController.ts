@@ -1,10 +1,22 @@
+import { Exception } from '@adonisjs/core/build/standalone'
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Employee from 'App/Models/Employee'
 import { DateTime } from 'luxon'
+import type {
+  SingleResponse,
+  ManyResponse,
+  DeleteResponse,
+  ErrorResponse,
+} from '../../Helpers/ResponseTypes'
 
 export default class EmployeesController {
   public async index({ response }: HttpContextContract) {
-    response.send(await Employee.all())
+    let res: ManyResponse<Employee> = {
+      status: 200,
+      message: 'OK',
+      data: await Employee.all(),
+    }
+    response.send(res)
   }
   public async store({ request, response }: HttpContextContract) {
     try {
@@ -13,37 +25,81 @@ export default class EmployeesController {
       model.color = request.input('color')
       await model.save()
 
-      response.send({ status: 200, employee: model })
+      let res: SingleResponse<Employee> = {
+        status: 200,
+        message: 'OK',
+        data: model,
+      }
+      response.send(res)
     } catch (e) {
-      response.gone({ error: e })
+      let eres: ErrorResponse = {
+        data: null,
+        message: (e as Exception).message,
+        status: (e as Exception).status,
+      }
+      response.gone(eres)
     }
   }
   public async show({ request, response }: HttpContextContract) {
     let model = await Employee.find(request.param('id'))
     if (model) {
-      response.send({ employee: model })
+      let res: SingleResponse<Employee> = {
+        status: 200,
+        message: 'OK',
+        data: model,
+      }
+      response.send(res)
     } else {
-      response.notFound({ id: request.param('id') })
+      let eres: ErrorResponse = {
+        data: null,
+        message: `Employee with id ${request.param('id')} not found`,
+        status: 404,
+      }
+      response.notFound(eres)
     }
   }
   public async update({ request, response }: HttpContextContract) {
     let model = await Employee.find(request.param('id'))
-    model
-      ?.merge({
-        name: request.input('name'),
-        color: request.input('color'),
-        updatedAt: DateTime.now(),
-      })
-      .save()
-    response.send({ employee: model })
+    if (model) {
+      await model
+        ?.merge({
+          name: request.input('name'),
+          color: request.input('color'),
+          updatedAt: DateTime.now(),
+        })
+        .save()
+      let res: SingleResponse<Employee> = {
+        status: 200,
+        message: 'OK',
+        data: model,
+      }
+      response.send(res)
+    } else {
+      let eres: ErrorResponse = {
+        data: null,
+        message: `Employee #${request.param('id')} not found`,
+        status: 404,
+      }
+      response.notFound(eres)
+    }
   }
   public async destroy({ request, response }: HttpContextContract) {
     let model = await Employee.find(request.param('id'))
     if (model) {
       await model?.delete()
-      response.send({ status: 'ok', id: request.param('id') })
+      let res: DeleteResponse = {
+        data: { id: request.param('id') },
+        message: 'OK',
+        status: 200,
+      }
+      response.send(res)
     } else {
-      response.notFound({ status: 'Not found', id: request.param('id') })
+      let eres: ErrorResponse = {
+        data: null,
+        message: `Employee #${request.param('id')} not found`,
+        status: 404,
+      }
+      response.notFound(eres)
     }
   }
 }
